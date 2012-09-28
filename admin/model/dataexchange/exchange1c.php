@@ -332,7 +332,12 @@ class ModelDataexchangeExchange1c extends Model {
 			}
 						
 			$this->model_catalog_category->addCategory($data);
-			$this->db->query('INSERT INTO `' . DB_PREFIX . 'category_to_1c` SET category_id = ' . (string)$this->getLastId('category','category_id') . ', `1c_category_id` = "' . (string)$id . '"');
+			
+			if(! isset($category_id)){
+				$category_id = (string)$this->getLastId('category','category_id');
+			}
+			
+			$this->db->query('INSERT INTO `' . DB_PREFIX . 'category_to_1c` SET category_id = ' . $category_id . ', `1c_category_id` = "' . (string)$id . '"');
 			$this->CAT[$id] = $category_id;
 				
 		}
