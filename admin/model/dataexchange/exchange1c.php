@@ -33,7 +33,6 @@ class ModelDataexchangeExchange1c extends Model {
 			$this->parseCategory($object->Классификатор);
 		}
 		
-		
 		$properties = $this->parseElementsAndProperties($object);
 		foreach($object->Каталог->Товары->Товар as $data){
 			$product = array();
@@ -211,7 +210,7 @@ class ModelDataexchangeExchange1c extends Model {
 
 		foreach($item as $name=>$val){
 			if(is_array($val)){
-				
+				//додати регулярку. це тупо.
 				$child = $xml->addChild(str_replace($this->digits,"",$name));
 				$this->add($child, $val);
 			}
@@ -305,8 +304,9 @@ class ModelDataexchangeExchange1c extends Model {
 			}
 			$data['category_store'] = array(0);
 			$data['keyword'] = '';
-			//$data['image'] = '';
-			//$data['sort_order'] = 0;
+			$data['meta'] = '';
+			$data['column'] = 0;
+			$data['sort_order'] = 0;
 			
 			$query = $this->db->query('SELECT * FROM `' . DB_PREFIX . 'category_to_1c` WHERE `1c_category_id` = "' . (string)$id . '"');
 			if($query->num_rows) {
@@ -321,8 +321,9 @@ class ModelDataexchangeExchange1c extends Model {
 						'meta_description' => '',
 						'description' => '',
 						'title'	=> '',
-						'h1' => ''
-					);
+						'h1' => '',
+						'meta_keyword' => ''
+						);
 					$this->model_catalog_category->editCategory($category_id,$data);
 					return;
 				}
@@ -357,7 +358,8 @@ class ModelDataexchangeExchange1c extends Model {
 				'meta_description' => isset($product['meta_description']) ? trim($product['meta_description']): (isset($data['product_description'][(int)$this->config->get('config_language_id')]['meta_description'])? $data['product_description'][(int)$this->config->get('config_language_id')]['meta_description']: ''),
 				'description' => isset($product['description']) ? trim($product['description']): (isset($data['product_description'][(int)$this->config->get('config_language_id')]['description'])? $data['product_description'][(int)$this->config->get('config_language_id')]['description']: ''),
 				'title' => isset($product['title']) ? $product['title']: (isset($data['product_description'][(int)$this->config->get('config_language_id')]['title'])? $data['product_description'][(int)$this->config->get('config_language_id')]['title']: ''),
-				'h1' => isset($product['h1']) ? $product['h1']: (isset($data['product_description'][(int)$this->config->get('config_language_id')]['h1'])? $data['product_description'][(int)$this->config->get('config_language_id')]['h1']: '')
+				'h1' => isset($product['h1']) ? $product['h1']: (isset($data['product_description'][(int)$this->config->get('config_language_id')]['h1'])? $data['product_description'][(int)$this->config->get('config_language_id')]['h1']: ''),
+				'tag' => isset($product['tag']) ? $product['tag']: (isset($data['product_description'][(int)$this->config->get('config_language_id')]['tag'])? $data['product_description'][(int)$this->config->get('config_language_id')]['tag']: '')
 			);
 		// Модель
 		$data['model'] = (isset($product['model'])) ?$product['model'] : (isset($data['model'])? $data['model']: '');
@@ -373,8 +375,6 @@ class ModelDataexchangeExchange1c extends Model {
 		$data['product_store'] = array(0);
 		
 		$data['meta_keyword'] = (isset($product['meta_keyword'])) ?$product['meta_keyword'] : (isset($data['meta_keyword'])? $data['meta_keyword']: '');
-		
-		$data['tag'] = (isset($product['tag'])) ?$product['tag'] : (isset($data['tag'])? $data['tag']: array());
 		
 		// Изображение
 
@@ -501,7 +501,9 @@ class ModelDataexchangeExchange1c extends Model {
 		$product_old = array_merge($product_old, array('product_discount' => $this->model_catalog_product->getProductDiscounts($product_id)));
 		$product_old = array_merge($product_old, array('product_option' => $this->model_catalog_product->getProductOptions($product_id)));
 		$product_old = array_merge($product_old, array('product_related' => $this->model_catalog_product->getProductRelated($product_id)));
-		$product_old = array_merge($product_old, array('product_tag' => $this->model_catalog_product->getProductTags($product_id)));
+		if (VERSION == '1.5.1.3'){
+			$product_old = array_merge($product_old, array('product_tag' => $this->model_catalog_product->getProductTags($product_id)));
+		}
 			
 		$new_product = $this->initProduct($product, $product_old);
 		

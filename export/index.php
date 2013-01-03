@@ -132,6 +132,8 @@ $registry->set('user', new User($registry));
 // Front Controller
 $controller = new Front($registry);
 
+$headers = apache_request_headers();
+
 // Router
 if (isset($request->get['mode'])) {
 
@@ -139,30 +141,38 @@ if (isset($request->get['mode'])) {
 	
 		$action = new Action('module/exchange1c/modeCheckauth');
 		
-	} elseif( $request->get['mode'] == 'init') {
+	}else{
+		if (isset($headers['Cookie']) && $headers['Cookie'] == session_name()."=".session_id()){
+			if( $request->get['mode'] == 'init') {
 	
-		$action = new Action('module/exchange1c/modeInit');
+				$action = new Action('module/exchange1c/modeInit');
 		
-	} elseif( $request->get['mode'] == 'file') {
+			} elseif( $request->get['mode'] == 'file') {
 	
-		$action = new Action('module/exchange1c/modeFile');
+				$action = new Action('module/exchange1c/modeFile');
 		
-	} elseif( $request->get['mode'] == 'import') {
+			} elseif( $request->get['mode'] == 'import') {
 	
-		$action = new Action('module/exchange1c/modeImport');
+				$action = new Action('module/exchange1c/modeImport');
 		
-	} elseif( $request->get['mode'] == 'query') {
+			} elseif( $request->get['mode'] == 'query') {
 		
-		$action = new Action('module/exchange1c/modeQuery');
+				$action = new Action('module/exchange1c/modeQuery');
 			
-	} else {
-		echo "success\n";
-		exit;
+			} else {
+				echo "failure.\n";
+				echo "Bad command";
+				exit;
+			}
+		} else {
+			echo "failure.\n";
+			echo "Bad authorization.";
+			exit;
+		}
 	}
-	
 
 } else {
-	echo "success\n";
+	echo "Success\n";
 	exit;
 }
 

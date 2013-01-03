@@ -308,12 +308,14 @@ class ControllerModuleExchange1c extends Controller {
 			// "import";
 			$this->model_dataexchange_exchange1c->parseImport();
 			echo "success\n";
+			echo "Loaded import files\n";
 			
 		} elseif($this->request->get['filename'] == 'offers.xml') {
 			
 			//echo "offers";
 			$this->model_dataexchange_exchange1c->parseOffers();
 			echo "success\n";
+			echo "Loaded offers files\n";
 			
 		} else {
 		
