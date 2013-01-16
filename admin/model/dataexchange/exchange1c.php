@@ -299,15 +299,24 @@ class ModelDataexchangeExchange1c extends Model {
 			$query = $this->db->query('SELECT * FROM `' . DB_PREFIX . 'category_to_1c` WHERE `1c_category_id` = "' . (string)$parent . '"');
 			if($query->num_rows) {
 				$data['parent_id'] = strval($query->row['category_id']);
-			} else {
-				$data['parent_id'] = 0;
 			}
+			
 			$data['category_store'] = array(0);
 			$data['keyword'] = '';
 			$data['meta'] = '';
 			$data['column'] = 0;
 			$data['sort_order'] = 0;
-			
+			 // створюємо пусту категорію, на випадок, якщо такої категорії не існує
+            $data['category_description'] = array();
+            $data['category_description'][(int)$this->config->get('config_language_id')] = array(
+                'seo_title'        => '',
+                'seo_h1'           => '',
+                'name'             => $name,
+                'meta_keyword'     => '',
+                'meta_description' => '',
+                'description'      => '',
+            );
+	
 			$query = $this->db->query('SELECT * FROM `' . DB_PREFIX . 'category_to_1c` WHERE `1c_category_id` = "' . (string)$id . '"');
 			if($query->num_rows) {
 				$category_id = (int)$query->row['category_id'];
@@ -366,7 +375,7 @@ class ModelDataexchangeExchange1c extends Model {
 		
 		// SKU
 		$data['sku'] = (isset($product['sku'])) ?$product['sku'] : (isset($data['sku'])? $data['sku']: '0');
-		$data['ups'] = (isset($product['ups'])) ?$product['ups'] : (isset($data['ups'])? $data['ups']: '');
+		$data['upc'] = (isset($product['upc'])) ?$product['upc'] : (isset($data['upc'])? $data['upc']: '');
 		$data['points'] = (isset($product['points'])) ?$product['points'] : (isset($data['points'])? $data['points']: '');
 		
 		$data['location'] = (isset($product['location'])) ?$product['location'] : (isset($data['location'])? $data['location']: '');
@@ -374,8 +383,11 @@ class ModelDataexchangeExchange1c extends Model {
 		// Магазин в который выгружаем
 		$data['product_store'] = array(0);
 		
+		$data['product_tag'] = array(0);
+		
 		$data['meta_keyword'] = (isset($product['meta_keyword'])) ?$product['meta_keyword'] : (isset($data['meta_keyword'])? $data['meta_keyword']: '');
 		
+		$data['keyword'] = (isset($product['keyword'])) ?$product['keyword'] : (isset($data['keyword'])? $data['keyword']: '');
 		// Изображение
 
 		if (isset($product['image'])){
@@ -493,6 +505,10 @@ class ModelDataexchangeExchange1c extends Model {
 		
 		// Обновляєм опис продукта
 		$product_old = $this->model_catalog_product->getProduct($product_id);
+		
+		if(isset($product_old['product_category'])){
+            $product_old = array_merge($product_old, array('product_category' => $this->model_catalog_product->getProductCategories($product_id)));
+        }
 		
 		$product_old = array_merge($product_old, array('product_description' => $this->model_catalog_product->getProductDescriptions($product_id)));
 		$product_old = array_merge($product_old, array('product_category' => $this->model_catalog_product->getProductCategories($product_id)));
